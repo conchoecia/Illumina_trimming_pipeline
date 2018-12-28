@@ -1,0 +1,35 @@
+# hiseq trimming and qc pipeline
+
+#Change these to wherever the Trimmomatic top dir is and where bbmerge is located
+trimmomatic = "/usr/local/bin/Trimmomatic-0.35"
+bbmergepath = "/usr/local/bin/bbmap/bbmerge.sh"
+maxthreads = 90
+
+# Directories that contain HiSeq read pairs
+directories:
+  - "/directory/containing/hiseq/reads/"
+  - "/another/dir/with/reads/"
+
+# Ignore libraries that begin with this seq
+ignore:
+  - "SJ"
+
+# Libraries that are Dovetail Chicago or HiC, and their junction seq
+# Library names must not contain underscore characters
+prox:
+  AATTAATT:
+    - "DS156"
+    - "DS157"
+  GATCGATC:
+    - "DSc001"
+    - "DSc002"
+    - "DSc003"
+  CATGCATG:
+    - "DS205"
+    - "DS206"
+    - "DS218"
+
+# Sequences that use nextera adapters are here
+nextera:
+  - "DS015"
+  - "DS016"
