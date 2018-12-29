@@ -60,6 +60,8 @@ for this_d in config["directories"]:
             stop = split.index("R2")
         temp_samplename = "_".join(split[0:stop])
         add_sample = True
+        if "ignore" not in config:
+            config["ignore"] = []
         for check in ["Undetermined"] + config["ignore"]:
             if check in temp_samplename:
                 add_sample = False
