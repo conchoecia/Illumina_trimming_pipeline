@@ -207,7 +207,7 @@ rule trim_pairs:
         f_unpaired = temp("trimmed/TruSeq3-PE-2/{sample}_1.trim.unpaired.fastq.gz"),
         r_unpaired = temp("trimmed/TruSeq3-PE-2/{sample}_2.trim.unpaired.fastq.gz")
     threads:
-        maxthreads
+        15
     message:
         "adapter and quality trimming files for sample "
     run:
