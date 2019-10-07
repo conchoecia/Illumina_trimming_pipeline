@@ -157,33 +157,28 @@ rule compile_minlen:
         gcc {input.f1} -lz -o {output.f2}
         """
 
+#print(config["samples"]["Bf"])
 
 rule make_fake_reads:
-    input:
-        [config["samples"][sample][readdir] \
-           for readdir in ['f', 'r'] \
-           for sample in config["samples"]]
     output:
-        forward = ancient(sorted(expand("reads/{sample}_R1_001.fastq.gz", sample=config["samples"]))),
-        reverse = ancient(sorted(expand("reads/{sample}_R2_001.fastq.gz", sample=config["samples"])))
+        forward = "reads/{sample}_R1_001.fastq.gz",
+        reverse = "reads/{sample}_R2_001.fastq.gz"
     message:
         "making soft links"
+    params:
+        sname = lambda w: w.sample,
+        fname = lambda w: config["samples"][w.sample]["f"],
+        rname = lambda w: config["samples"][w.sample]["r"],
     run:
-        dir_to_R = {"f": "R1", "r": "R2"}
-        for this_sample in sorted(config["samples"]):
-            for this_direction in ["f", "r"]:
-                new_path = "reads/{}_{}_001.fastq.gz".format(this_sample,
-                                                             dir_to_R[this_direction])
-                if not os.path.exists(new_path):
-                    os.symlink(config["samples"][this_sample][this_direction],
-                           new_path)
-                else:
-                    print("{} already exists. skipping.".format(new_path))
+        """
+        ln -s {params.fname} reads/{params.sname}_R1_001.fastq.gz
+        ln -s {params.rname} reads/{params.sname}_R2_001.fastq.gz
+        """
 
 rule find_adapters:
     input:
-        f1 = "reads/{sample}_R1_001.fastq.gz",
-        f2 = "reads/{sample}_R2_001.fastq.gz",
+        f1 = ancient("reads/{sample}_R1_001.fastq.gz"),
+        f2 = ancient("reads/{sample}_R2_001.fastq.gz"),
         bbmerge = bbmergepath
     output:
         adapters = "adapters/{sample}_adapters.fa",
@@ -232,7 +227,6 @@ rule trim_pairs:
               {} \
               {} \
               ILLUMINACLIP:{}:2:30:10:1:TRUE \
-              LEADING:3 TRAILING:3 \
               SLIDINGWINDOW:4:15 MINLEN:36""".format(
                   input.trim_jar,
                   threads,
