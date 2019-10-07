@@ -213,8 +213,7 @@ rule trim_pairs:
         #{output.f_unpaired} \
         #{output.r_paired} \
         #{output.r_unpaired} \
-        #ILLUMINACLIP:{input.adapter_file}:2:30:10 \
-        #LEADING:3 TRAILING:3 \
+        #ILLUMINACLIP:{input.adapter_file}:2:30:10:1:TRUE \
         #SLIDINGWINDOW:4:15 MINLEN:36"""
         adapter_path = config["adapter_pairs"][input.f1]
         #print("lol here is adapter path")
