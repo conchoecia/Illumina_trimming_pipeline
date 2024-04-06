@@ -70,6 +70,7 @@ for this_d in config["directories"]:
     for locsample in sorted(samplelist):
         #print(locsample.split('_')[0])
         sample_fastqs = sorted([filepath for filepath in fastqs if locsample in filepath])
+        #print(sample_fastqs)
         f = os.path.join(this_d, sample_fastqs[0])
         r = os.path.join(this_d, sample_fastqs[1])
         if locsample in config["samples"]:
@@ -81,12 +82,13 @@ for this_d in config["directories"]:
             config["samples"][locsample] = {}
             config["samples"][locsample]["f"] = f
             config["samples"][locsample]["r"] = r
+            # this little block is sort of silly and hacky
+            # probably needs changing in the future
             readkey = "reads/{}_R1_001.fastq.gz".format(locsample)
             if locsample.split('_')[0] in config["nextera"]:
                 config["adapter_pairs"][readkey] = os.path.join(trimmomatic, "adapters/NexteraPE-PE.fa")
             else:
                 config["adapter_pairs"][readkey] = os.path.join(trimmomatic, "adapters/TruSeq3-PE-2.fa")
-
 
 #print(config["adapter_pairs"])
 #for key in sorted(config["samples"].keys()):
@@ -95,12 +97,12 @@ for this_d in config["directories"]:
 #    print("  - r: {}".format(config["samples"][key]["r"]))
 
 #print(config["adapter_pairs"])
-print("The libraries identified for Nextera-specific trimming are:")
-for key in sorted(config["samples"].keys()):
-    if key.split('_')[0] in config["nextera"]:
-        print("  - {}".format(key))
-        #accession = "reads/{}_R1_001.fastq.gz".format(key)
-        #print("  - {}".format(config["adapter_pairs"][accession]))
+#print("The libraries identified for Nextera-specific trimming are:")
+#for key in sorted(config["samples"].keys()):
+#    if key.split('_')[0] in config["nextera"]:
+#        print("  - {}".format(key))
+#        #accession = "reads/{}_R1_001.fastq.gz".format(key)
+#        #print("  - {}".format(config["adapter_pairs"][accession]))
 
 
 rule all:
@@ -109,8 +111,8 @@ rule all:
         "bin/fqjt",
         "bin/minlen_pair",
         #get the reads
-        expand("reads/{sample}_R2_001.fastq.gz", sample=config["samples"]),
-        expand("reads/{sample}_R2_001.fastq.gz", sample=config["samples"]),
+        #expand("reads/{sample}_R2_001.fastq.gz", sample=config["samples"]),
+        #expand("reads/{sample}_R2_001.fastq.gz", sample=config["samples"]),
         #find the adapter sequences present in the files
         #expand("adapters/{sample}_adapters.fa", sample = config["samples"]),
         #expand("adapters/{sample}_merge.log", sample = config["samples"]),
@@ -169,7 +171,7 @@ rule make_fake_reads:
         sname = lambda w: w.sample,
         fname = lambda w: config["samples"][w.sample]["f"],
         rname = lambda w: config["samples"][w.sample]["r"],
-    run:
+    shell:
         """
         ln -s {params.fname} reads/{params.sname}_R1_001.fastq.gz
         ln -s {params.rname} reads/{params.sname}_R2_001.fastq.gz
